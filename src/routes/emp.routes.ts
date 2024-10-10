@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { upload } from "../middlewares/multer.middleware";
-import { registerUser, getEmployees, getUser, updateEmployee } from "../controllers/user.controller";
+import { registerUser, getUsers, getUser, updateEmployee } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
 const router = Router();
@@ -10,7 +10,7 @@ router.route("/register-user").post(
   registerUser
 );
 
-router.route("/get-employees").get(verifyJWT, getEmployees);
+router.route("/get-users").get(verifyJWT, getUsers);
 router.route("/get-user-details").get(verifyJWT, getUser);
 router.route("/update-employee").patch(verifyJWT, updateEmployee);
 

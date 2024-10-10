@@ -51,12 +51,11 @@ export const registerUser = asyncHandler(async (req: Request, res: Response): Pr
 });
 
 
-export const getEmployees = asyncHandler(async (req: CustomeRequest, res: Response): Promise<void> => {
+export const getUsers = asyncHandler(async (req: CustomeRequest, res: Response): Promise<void> => {
   // console.log("reqq", req.headers.authorization, "\n\n")
   // console.log("aaa", req.cookies.refreshToken)
   const {page="1", limit="10", ...qr} = req.query;
   const query = {
-    role: "employee", 
     $or: [
       { workSpaceAdminId: req?.user?._id }, 
       { superAdminId: req?.user?._id }

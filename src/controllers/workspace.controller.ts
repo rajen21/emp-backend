@@ -13,7 +13,8 @@ interface CustomeRequest extends Request {
 
 export const createWorkspace = asyncHandler(async (req: Request, res: Response) => {
   const { name, owner, admin, isActive = false, email, phone, address } = req.body;
-  if ([name, owner, admin, email, phone, address].some((val) => val?.trim() === "")) {
+  
+  if ([name, owner, admin, email, phone, address].some((val) => !val?.trim())) {
     throw new ApiError(400, "All fields are required");
   }
   const [isValidAdmin] = await User.find({ _id: admin, role: "super_admin" }, { password: 0 });
