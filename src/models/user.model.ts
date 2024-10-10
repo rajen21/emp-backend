@@ -88,15 +88,15 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
     },
     workspaceId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "users",
     },
     workSpaceAdminId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "users"
     },
     superAdminId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "users",
     },
     isActive: {

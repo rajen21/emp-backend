@@ -57,17 +57,17 @@ export const getUsers = asyncHandler(async (req: CustomeRequest, res: Response):
   const {page="1", limit="10", ...qr} = req.query;
   const query = {
     $or: [
-      { workSpaceAdminId: req?.user?._id }, 
-      { superAdminId: req?.user?._id }
+      { workSpaceAdminId: req?.user?._id?.toString() }, 
+      { superAdminId: req?.user?._id?.toString() }
     ], 
     ...qr
   };
   const pageNumber = parseInt(page as string);
   const limitNumber = parseInt(limit as string);
   const skip = (pageNumber - 1) * limitNumber;
-
-
+  
   const employees = await User.find(query, { password: 0 }).skip(skip).limit(limitNumber);
+  
   const data = {
     employees,
     pagination: {
