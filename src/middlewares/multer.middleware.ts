@@ -1,5 +1,5 @@
 import multer from "multer";
-import { Readable } from "stream";
+import { type Readable } from "stream";
 
 export interface File {
   fieldname: string;

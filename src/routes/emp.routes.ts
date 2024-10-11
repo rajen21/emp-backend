@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import { upload } from "../middlewares/multer.middleware";
 import { registerUser, getUsers, getUser, updateEmployee } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";

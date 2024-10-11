@@ -24,6 +24,7 @@ export interface IUser extends Document {
   isPasswordCorrect(password: string): Promise<boolean>;
   generateAccessToken(): string;
   generateRefreshToken(): string;
+  getUpdate: () => IUser;
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -108,7 +109,9 @@ const userSchema: Schema<IUser> = new Schema(
 );
 
 userSchema.pre<IUser>("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  console.log("saveee:::::::::");
+  
+  if (!this.isModified("password") && !this.password) return next();
   this.password = await bcrypt.hash(this.password, 15);
   next();
 });
