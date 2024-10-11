@@ -46,5 +46,9 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  res.send("logOut")
+  res
+    .cookie('refreshToken', null, { httpOnly: true, sameSite: 'none', secure: true })
+    .header('Authorization', "")
+    .json(new ApiResponse(200, null, "User logged out successfully"))
+  return;
 })
