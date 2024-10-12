@@ -1,5 +1,7 @@
 import multer from "multer";
-import { Readable } from "stream";
+import { type Readable } from "stream";
+import fs from "fs";
+import path from "path";
 
 export interface File {
   fieldname: string;
@@ -16,6 +18,11 @@ export interface File {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    const directoryPath = path.join(__dirname, '../../public/temp');
+    
+    if (!fs.existsSync(directoryPath)) {
+      fs.mkdirSync(directoryPath, { recursive: true });
+    }
     cb(null,"./public/temp");
   },
   filename: function (req, file, cb) {

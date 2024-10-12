@@ -26,7 +26,6 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
     throw new ApiError(400, "Workspace admin is not valid.");
   }
 
-
   let logo;
   if (req.file) {
     logo = await uploadOnCloudinary(req.file.path);
@@ -37,7 +36,7 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
     name,
     owner,
     admin,
-    isActive,
+    isActive: isActive === "true",
     logo: logo?.url ?? "",
     email,
     phone,
@@ -48,25 +47,31 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
   if (!workspace) {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
-  res.status(201).json(new ApiResponse(200, workspace, "Successfully created workspace."));
+  res.status(201).json(new ApiResponse(201, workspace, "Successfully created workspace."));
   return;
 });
 
 export const getWorkspace = asyncHandler(async (req: CustomeRequest, res: Response) => {
-  const query = {$or: [{owner: req?.user?._id}, {admin: req?.user?._id}],...req.query};
+  const query = { $or: [{ owner: req?.user?._id }, { admin: req?.user?._id }], ...req.query };
   const workspace = await Workspace.find(query);
-  res.status(200).json(new ApiResponse(200,workspace, "Successfully fetched Workspace data."));
+  res.status(200).json(new ApiResponse(200, workspace, "Successfully fetched Workspace data."));
   return;
 });
 
 
 export const updateWorkspace = asyncHandler(async (req: CustomeRequest, res: Response) => {
+  const {_id, ...qr} = req.query;
   const query = {
-    $or: [
-      { owner: req?.user?._id },
-      { admin: req?.user?._id }
+    $and: [
+      { _id: _id },
+      {
+        $or: [
+          { owner: req?.user?._id },
+          { admin: req?.user?._id }
+        ]
+      },
     ],
-    ...req.query
+    ...qr
   };
   const data = {
     $set: {
