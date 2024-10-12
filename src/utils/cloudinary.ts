@@ -13,9 +13,6 @@ cloudinary.config({
 export const uploadOnCloudinary = async (localFilePath: string): Promise<UploadApiResponse | null> => {
   try {
     if (!localFilePath) return null;
-    console.log("checkkk", localFilePath
-
-    )
 
     const response: UploadApiResponse = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",

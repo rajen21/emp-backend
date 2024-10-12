@@ -1,5 +1,9 @@
-import { Response, Request, NextFunction } from "express";
+import { Response, Request } from "express";
 import { Document } from "mongoose";
+import path from "path";
+import fs from "fs"
+import { createObjectCsvWriter } from 'csv-writer';
+
 
 import { asyncHandler } from "../utils/asyncHandler";
 import ApiError from "../utils/ApiError";
@@ -63,7 +67,7 @@ export const getUsers = asyncHandler(
     if (_id) {
       query = {
         $and: [
-          {_id},
+          { _id },
           {
             $or: [
               { workSpaceAdminId: req?.user?._id?.toString() },
@@ -83,13 +87,16 @@ export const getUsers = asyncHandler(
       };
     }
 
+
+
     const pageNumber = parseInt(page as string);
     const limitNumber = parseInt(limit as string);
     const skip = (pageNumber - 1) * limitNumber;
-    
+
     const employees = await User.find(query, { password: 0 })
-    .skip(skip)
-    .limit(limitNumber);
+      .skip(skip)
+      .limit(limitNumber);
+    console.log("checkkk enryttu::::", query, req?.user?._id, employees);
 
     const empCount = await User.countDocuments(query);
     const hasMore = empCount > skip + employees.length;
@@ -190,3 +197,49 @@ export const updateEmployee = asyncHandler(
     return;
   }
 );
+
+export const exportToCsv = asyncHandler(async (req: CustomeRequest, res) => {
+  const query = {
+    superAdminId: req?.user?.id,
+  };
+  const users = await User.find(query);
+
+  try {
+    const directoryPath = path.join(__dirname, '../../public/temp');
+
+    if (!fs.existsSync(directoryPath)) {
+      fs.mkdirSync(directoryPath, { recursive: true });
+    }
+    const pathToStore = path.join(directoryPath, new Date().getTime().toString() + ".csv");
+    const csvWriter = createObjectCsvWriter({
+      path: pathToStore,
+      header: [
+        { id: 'username', title: 'User Name' },
+        { id: 'email', title: 'Email' },
+        { id: 'fullname', title: 'Name' },
+        { id: 'phone', title: 'Phone' },
+        { id: 'experience', title: 'Experience' },
+        { id: 'company', title: 'Company' },
+        { id: 'dob', title: 'DOB' },
+        { id: 'dept', title: 'Department' },
+        { id: 'company_address', title: 'Company Address' },
+        { id: 'address', title: 'Address' },
+        { id: 'doj', title: 'DOJ' },
+        { id: 'isActive', title: 'Is Active' },
+      ]
+    });
+
+    await csvWriter.writeRecords(users);
+    const clpath = await uploadOnCloudinary(pathToStore);
+    if (clpath?.url) {
+      fs.unlink(pathToStore, () => {
+        console.log("deleteddd:::");
+      })
+    }
+    res.status(200).json(new ApiResponse(200, { url: clpath?.url }));
+    return;
+  } catch (err) {
+    console.log("eerrr::::", err);
+    return;
+  }
+});
