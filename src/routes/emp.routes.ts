@@ -12,6 +12,6 @@ router.route("/register-user").post(
 
 router.route("/get-users").get(verifyJWT, getUsers);
 router.route("/get-user-details").get(verifyJWT, getUser);
-router.route("/update-employee").patch(verifyJWT, updateEmployee);
+router.route("/update-employee").patch(verifyJWT, upload.single("profilePhoto"), updateEmployee);
 
 export default router;

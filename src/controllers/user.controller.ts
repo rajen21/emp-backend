@@ -26,13 +26,9 @@ export const registerUser = asyncHandler(
       throw new ApiError(409, "User already exists");
     }
 
-    let profilePhotoLocalPath: string | undefined;
     let profilePhoto;
     if (req.file) {
-      profilePhotoLocalPath = req.file.path;
-      if (profilePhotoLocalPath) {
-        profilePhoto = await uploadOnCloudinary(profilePhotoLocalPath);
-      }
+      profilePhoto = await uploadOnCloudinary(req.file.path);
     }
     const data = {
       ...req.body,
@@ -61,21 +57,39 @@ export const getUsers = asyncHandler(
   async (req: CustomeRequest, res: Response): Promise<void> => {
     // console.log("reqq", req.headers.authorization, "\n\n")
     // console.log("aaa", req.cookies.refreshToken)
-    const { page = "1", limit = "10", ...qr } = req.query;
-    const query = {
-      $or: [
-        { workSpaceAdminId: req?.user?._id?.toString() },
-        { superAdminId: req?.user?._id?.toString() },
-      ],
-      ...qr,
-    };
+    const { page = "1", limit = "10", _id, ...qr } = req.query;
+    let query;
+
+    if (_id) {
+      query = {
+        $and: [
+          {_id},
+          {
+            $or: [
+              { workSpaceAdminId: req?.user?._id?.toString() },
+              { superAdminId: req?.user?._id?.toString() },
+            ]
+          }
+        ],
+        ...qr
+      }
+    } else {
+      query = {
+        $or: [
+          { workSpaceAdminId: req?.user?._id?.toString() },
+          { superAdminId: req?.user?._id?.toString() },
+        ],
+        ...qr,
+      };
+    }
+
     const pageNumber = parseInt(page as string);
     const limitNumber = parseInt(limit as string);
     const skip = (pageNumber - 1) * limitNumber;
-
+    
     const employees = await User.find(query, { password: 0 })
-      .skip(skip)
-      .limit(limitNumber);
+    .skip(skip)
+    .limit(limitNumber);
 
     const empCount = await User.countDocuments(query);
     const hasMore = empCount > skip + employees.length;
@@ -134,8 +148,9 @@ export const updateEmployee = asyncHandler(
       if (body.experience) {
         user.experience = body.experience;
       }
-      if (body.profilePhoto) {
-        user.profilePhoto = body.profilePhoto;
+      if (req.file) {
+        const photo = await uploadOnCloudinary(req.file.path);
+        user.profilePhoto = photo?.url;
       }
       if (body.company) {
         user.company = body.company;

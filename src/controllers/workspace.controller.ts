@@ -26,7 +26,6 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
     throw new ApiError(400, "Workspace admin is not valid.");
   }
 
-
   let logo;
   if (req.file) {
     logo = await uploadOnCloudinary(req.file.path);
@@ -48,7 +47,7 @@ export const createWorkspace = asyncHandler(async (req: Request, res: Response) 
   if (!workspace) {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
-  res.status(201).json(new ApiResponse(200, workspace, "Successfully created workspace."));
+  res.status(201).json(new ApiResponse(201, workspace, "Successfully created workspace."));
   return;
 });
 
