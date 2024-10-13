@@ -26,6 +26,8 @@ export const verifyJWT = async (req: CustomRequest, res: Response, next: NextFun
     console.log("checkk secretAccessKey", secretAccessKey);
     
     if (accessToken && secretAccessKey) {
+      console.log("goes into verfiy token");
+      
       const decoded = jwt.verify(accessToken, secretAccessKey) as CustomJwtPayload;
       console.log("ccc", decoded)
       const user = await User.findById(decoded?._id).select("-password");
