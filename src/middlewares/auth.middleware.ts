@@ -12,12 +12,12 @@ interface CustomJwtPayload extends JwtPayload {
 }
 
 export const verifyJWT = async (req: CustomRequest, res: Response, next: NextFunction): Promise<void> => {
-  const accessToken = req.headers['authorization'];
+  const accessToken = JSON.parse(req.headers['authorization'] || "");
   const refreshToken = req.cookies['refreshToken'];
-  console.log("check token::::", accessToken, refreshToken);
+  console.log("check token::::", accessToken.authToken,"\n\n\n\nrefresh::::::    ", refreshToken);
   
   try {
-    if (!accessToken && !refreshToken) {
+    if (!accessToken.authToken && !refreshToken) {
       res.status(401).json(new ApiResponse(401, null, "Access Denied. No token provided."));
       return;
       // throw new ApiError(401,"Access Denied. No token provided.");
@@ -25,10 +25,10 @@ export const verifyJWT = async (req: CustomRequest, res: Response, next: NextFun
     const secretAccessKey = process.env.ACCESS_SECRET_TOKEN;
     console.log("checkk secretAccessKey", secretAccessKey);
     
-    if (accessToken && secretAccessKey) {
-      console.log("goes into verfiy token");
+    if (accessToken.authToken && secretAccessKey) {
+      console.log("goes into verfiy token", );
       
-      const decoded = jwt.verify(accessToken, secretAccessKey) as CustomJwtPayload;
+      const decoded = jwt.verify(accessToken.authToken, secretAccessKey) as CustomJwtPayload;
       console.log("ccc", decoded)
       const user = await User.findById(decoded?._id).select("-password");
       if (!user) {
