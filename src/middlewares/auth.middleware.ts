@@ -29,8 +29,10 @@ export const verifyJWT = async (req: CustomRequest, res: Response, next: NextFun
       console.log("goes into verfiy token", );
       
       const decoded = jwt.verify(accessToken.authToken, secretAccessKey) as CustomJwtPayload;
-      console.log("ccc", decoded)
-      const user = await User.findById(decoded?._id).select("-password");
+      console.log("ccc", decoded.user._id)
+      const user = await User.findById(decoded.user._id).select("-password");
+      console.log("found logged user::::", user);
+      
       if (!user) {
         // throw new ApiError(401, "Invalid access token");
         res.status(401).json(new ApiResponse(401, null, "Invalid access token"));
